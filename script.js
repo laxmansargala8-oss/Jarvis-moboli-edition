@@ -1,6 +1,9 @@
 // --- 1. API & DOM SETUP ---
-const API_KEY = "AQ.Ab8RN6LXaEC6a5Tf20LDN9E0NMZffN_Wg1QXKIgV_3cv3ZWi5g"; // let API_KEY = localStorage.getItem("gemini_api_key") || prompt("Enter your Gemini API key:");
-if (API_KEY) localStorage.setItem("gemini_api_key", API_KEY);
+const API_KEY = let API_KEY = localStorage.getItem("gemini_api_key");
+if (!API_KEY) {
+  API_KEY = prompt("Enter your Gemini API Key:");
+  if (API_KEY) localStorage.setItem("gemini_api_key", API_KEY.trim());
+}
 const chat = document.getElementById("chat");
 const msgInput = document.getElementById("msg");
 const sendBtn = document.getElementById("send");
