@@ -1,7 +1,7 @@
 // --- 1. API & DOM SETUP ---
 const API_KEY = let API_KEY = localStorage.getItem("gemini_api_key");
 if (!API_KEY) {
-  API_KEY = prompt("Enter your Gemini API Key:");
+  API_KEY = prompt("AQ.Ab8RN6IVMaY-YZBzFX_ZMu56vaEPjiN-bQpXZKoi348AthZUvg:");
   if (API_KEY) localStorage.setItem("gemini_api_key", API_KEY.trim());
 }
 const chat = document.getElementById("chat");
