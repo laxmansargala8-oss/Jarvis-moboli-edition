@@ -1,13 +1,14 @@
 // --- 1. API & DOM SETUP ---
-const API_KEY = let API_KEY = localStorage.getItem("gemini_api_key");
+let API_KEY = localStorage.getItem("gemini_api_key");
 if (!API_KEY) {
-  API_KEY = prompt("AQ.Ab8RN6IVMaY-YZBzFX_ZMu56vaEPjiN-bQpXZKoi348AthZUvg:");
+  API_KEY = prompt("Enter your Gemini API Key:");
   if (API_KEY) localStorage.setItem("gemini_api_key", API_KEY.trim());
 }
+
 const chat = document.getElementById("chat");
 const msgInput = document.getElementById("msg");
 const sendBtn = document.getElementById("send");
-const micBtn = document.getElementById("mic"); // Make sure you have <button id="mic">🎤</button> in index.html
+const micBtn = document.getElementById("mic");
 
 // --- 2. HELPER TO ADD MESSAGES TO CHAT ---
 function add(text, cls = "") {
@@ -19,16 +20,20 @@ function add(text, cls = "") {
 }
 
 // --- 3. GEMINI AI CONNECTION ---
-async function askGemini(prompt) {
+async function askGemini(promptText) {
+  if (!API_KEY) {
+    add("J.A.R.V.I.S: ERROR - No API Key found. Refresh page to enter it.");
+    return;
+  }
   add("J.A.R.V.I.S: THINKING...");
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent?key=${API_KEY}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }]
+          contents: [{ parts: [{ text: promptText }] }]
         })
       }
     );
@@ -39,13 +44,29 @@ async function askGemini(prompt) {
     }
     const reply = data.candidates[0].content.parts[0].text;
     chat.lastChild.innerText = "J.A.R.V.I.S: " + reply;
-    speak(reply); // Speak the reply aloud
+    speak(reply);
   } catch (e) {
     chat.lastChild.innerText = "J.A.R.V.I.S: ERROR - " + e.message;
   }
 }
 
-// --- 4. SPEECH RECOGNITION (MIC) ---
+// --- 4. SEND BUTTON & ENTER KEY ---
+function handleSend() {
+  const text = msgInput.value.trim();
+  if (!text) return;
+  add("YOU: " + text, "user");
+  msgInput.value = "";
+  askGemini(text);
+}
+
+if (sendBtn) sendBtn.onclick = handleSend;
+if (msgInput) {
+  msgInput.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") handleSend();
+  });
+}
+
+// --- 5. SPEECH RECOGNITION (MIC) ---
 const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (SR) {
   const rec = new SR();
@@ -69,7 +90,7 @@ if (SR) {
   };
 }
 
-// --- 5. TEXT-TO-SPEECH (VOICE) ---
+// --- 6. TEXT-TO-SPEECH (VOICE) ---
 let voices = [];
 function loadVoices() {
   voices = speechSynthesis.getVoices();
@@ -81,21 +102,8 @@ function speak(t) {
   const u = new SpeechSynthesisUtterance(t);
   u.rate = 1.05;
   u.pitch = 0.85;
-  const v = voices.find((v) => v.lang.startsWith("en"));
-  if (v) u.voice = v;
+  if (voices.length > 0) {
+    u.voice = voices.find(v => v.lang.includes("en")) || voices[0];
+  }
   speechSynthesis.speak(u);
 }
-
-// --- 6. TEXT SEND ---
-sendBtn.onclick = () => {
-  const t = msgInput.value.trim();
-  if (!t) return;
-  add("YOU: " + t, "user");
-  msgInput.value = "";
-  askGemini(t);
-};
-
-// Allow pressing Enter key to send
-msgInput.addEventListener("keypress", (e) => {
-  if (e.key === "Enter") sendBtn.click();
-});
