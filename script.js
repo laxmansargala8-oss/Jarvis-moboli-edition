@@ -4,7 +4,6 @@ if (!API_KEY) {
   API_KEY = prompt("Enter your Gemini API Key:");
   if (API_KEY) localStorage.setItem("jarvis_api_key", API_KEY.trim());
 }
-  }'
 
 const chat = document.getElementById("chat");
 const msgInput = document.getElementById("msg");
