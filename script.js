@@ -1,9 +1,19 @@
 // --- 1. API & DOM SETUP ---
-let API_KEY = localStorage.getItem("gemini_api_key");
-if (!API_KEY) {
-  API_KEY = prompt("Enter your Gemini API Key:");
-  if (API_KEY) localStorage.setItem("gemini_api_key", API_KEY.trim());
-}
+let API_KEY = curl "https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent" \
+  -H 'Content-Type: application/json' \
+  -H 'X-goog-api-key: AQ.Ab8RN6K1pmxAfWKlum2GuiZQntNtEfg9alpabOX0ZXWWQoCH8g' \
+  -X POST \
+  -d '{
+    "contents": [
+      {
+        "parts": [
+          {
+            "text": "Explain how AI works in a few words"
+          }
+        ]
+      }
+    ]
+  }'
 
 const chat = document.getElementById("chat");
 const msgInput = document.getElementById("msg");
